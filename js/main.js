@@ -8,33 +8,43 @@ const mensajeTabla = document.querySelector('#mensajeTabla');
 
 const fragment=document.createDocumentFragment()
 
-//Array peliculas, almacen general
+//Arrays a utilizar
 
-let arrayPelis = [];
-let arrayGeneros=['Terror','Comedia','Acción', 'Romántica']
+let peliculas = [];
+/**
+ * @param {string}//Incluir nombres los generos de las peliculos añadidas
+ *
+ */
+let generos=['Terror','Comedia','Acción','Romántica']
 
-
-
-//FUNCIONES Y EVENTOS
-
-
-
+//==================Eventos===========================
 formulario.addEventListener('submit', (ev) => {
     ev.preventDefault();
     validar();
     pintarTabla()
-
 });
 
 filtrar.addEventListener('change',(ev)=>{
     const filtro=ev.target.value;
-    const arrayFiltrados= arrayPelis.filter((item)=>item.genero==filtro)
-    console.log(arrayFiltrados)
+    //console.log(filtro)
+    const filtrados= peliculas.filter((item)=>item.genero==filtro)
+    console.log(filtrados)
 
-    pintarTabla(arrayFiltrados)
+    pintarTabla(filtrados)
+if(ev.target.value=='mostrar'){
+    pintarTabla()
+    mensajeTabla.innerHTML=''
+}
+
 })
 
+//=========================Funciones======================
 
+/**
+ * 
+ * @param  {...any} array Indicamos el array que se pintara el select con un Rest para que pueda alcanzar cada elemento.
+ * @returns  
+ */
 const pintarSelect=(...array)=>{
     array.forEach((item)=>{
         const opcion=document.createElement('OPTION')
@@ -42,21 +52,21 @@ const pintarSelect=(...array)=>{
         opcion.text=item
 
         fragment.append(opcion)
-
     })
 
    return fragment
-
 }
 
+/**
+ * En esta funcion nosotros validaremos con el metodo ReExp,
+ * el cual nos permite asignar diversas caracteristicas que nosotros veamos convenientes para el ingreso de datos.
+ */
 const validar = () => {
-
     const regExp={
         titulo:/^.{2,}$/ig,
         director:/^[a-zÁ-ü]{2,}$/i,
         anio:/^[\d]{4}$/
     }
-
     let date = new Date()
     let year = date.getFullYear()
 
@@ -70,69 +80,52 @@ const validar = () => {
     if (!regExp.titulo.test(titulo)) {
         errores+='<li>Introduzca un título correcto</li>'
     };
-
     if (!regExp.director.test(director)) {
         errores+='<li>Introduzca un director válido</li>'
     };
-
     if (!regExp.anio.test(anio) || (anio > year || anio < 1800)) {
         errores+='<li>Introduzca un año entre el 1800 y la fecha actual</li>'
     };
-
     if (valorGenero=='Seleccionar Género') {
         errores+='<li>selecciona un genero</li>'
     };
-
-   
-
     if (errores === '') {
-
-        const objPeli={
+        const objetoPeliculas={
             director,
             titulo,
             anio,
             genero:valorGenero,
         }
-
-        almacenarPelis(objPeli)
+        almacenarPelis(objetoPeliculas)
         listaErrores.innerHTML=''
         formulario.reset()
-
     }else{
         listaErrores.innerHTML=errores
     };
-
 };
-
-const almacenarPelis=(objPeli)=>{
-    arrayPelis.push(objPeli);
-    filtrar.removeAttribute('disabled')
-}
-
-
-const pintarTabla=(array=arrayPelis)=>{
+const pintarTabla=(array=peliculas)=>{
     cajaPelis.innerHTML=''
-    if(array.length==0){
-        mensajeTabla.textContent=' No ha peliculas que mostrar'
-    }else{
         array.forEach((item)=>{
             const fila=document.createElement('TR')
-            fila.innerHTML=`<td>${item.titulo}</td>
-                             <td>${item.director}</td>
-                             <td>${item.anio}</td>
-                             <td>${item.genero}</td>`
-     
+            const titulo=document.createElement("TD")
+            titulo.textContent=item.titulo
+            const director=document.createElement("TD")
+            director.textContent=item.director
+            const anio=document.createElement("TD")
+         anio.textContent=item.anio
+            const genero=document.createElement("TD")
+            genero.textContent=item.genero
+            fila.append(titulo,director,anio,genero)
              fragment.append(fila)
          })
-     
          cajaPelis.append(fragment)
-     
-    }
-
-   
-
 }
+// Función que almacene el objeto de la peli en array 
+const almacenarPelis=(objetoPeliculas)=>{
+    peliculas.push(objetoPeliculas);
+}
+genero.append(pintarSelect('genero',...generos))
+filtrar.append(pintarSelect('mostrar',...generos))
 
-genero.append(pintarSelect('Seleccionar Género',...arrayGeneros))
-filtrar.append(pintarSelect('Mostrar Todas',...arrayGeneros))
+
 
